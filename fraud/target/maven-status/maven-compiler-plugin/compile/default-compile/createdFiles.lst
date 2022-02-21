@@ -1,0 +1,4 @@
+com\isanka\fraud\controller\model\FraudCheckStatus$FraudCheckStatusBuilder.class
+com\isanka\fraud\FraudApplication.class
+com\isanka\fraud\controller\model\FraudCheckStatus.class
+com\isanka\fraud\controller\FraudCheckController.class
