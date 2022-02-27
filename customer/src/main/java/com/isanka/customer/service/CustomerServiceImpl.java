@@ -1,10 +1,14 @@
 package com.isanka.customer.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
+import com.isanka.amqp.config.RabbitMqPropertyConfig;
+import com.isanka.amqp.service.RabbitMqPublisherService;
+import com.isanka.client.fraudclient.FraudCheckStatus;
+import com.isanka.client.fraudclient.FraudClient;
+import com.isanka.client.notification.NotificationBody;
+import com.isanka.client.notification.NotificationClient;
 import com.isanka.customer.model.Customer;
 import com.isanka.customer.model.CustomerRegistrationRequest;
 import com.isanka.customer.repository.CustomerRepo;
@@ -19,8 +23,17 @@ public class CustomerServiceImpl implements CustomerService{
 	private CustomerRepo dao;
 	
 	@Autowired
-	private RestTemplate template;
-
+	private FraudClient fraudService;
+	
+//	@Autowired
+//	private NotificationClient notificationService;
+	
+	@Autowired
+	private RabbitMqPublisherService emailQueue;
+	
+	@Autowired
+	private RabbitMqPropertyConfig config;
+	
 	public Customer registerCustomer(CustomerRegistrationRequest request) {
 
 		Customer customer = Customer.builder()
@@ -30,8 +43,22 @@ public class CustomerServiceImpl implements CustomerService{
 		
 		dao.saveAndFlush(customer);
 		
-		ResponseEntity<String> result = template.getForEntity("http://localhost:8081/fraud/api/check/{customerId}", String.class, customer.getId());
-		log.info(result.getBody());
+		
+		FraudCheckStatus status =  fraudService.check(customer.getId());
+		
+		NotificationBody body = NotificationBody.builder()
+		.body("Registering customer")
+		.header("Client Registration "+request.toString())
+		.address("support@client.com")
+		.build();
+		
+		
+		emailQueue.publish(body, config.getExchange(), config.getKey());
+		
+		//notificationService.sendEmail(body);
+		
+		//ResponseEntity<String> result = template.getForEntity("http://FRAUD/fraud/api/check/{customerId}", String.class, customer.getId());
+		log.info(status.toString());
 		
 		return customer;
 		

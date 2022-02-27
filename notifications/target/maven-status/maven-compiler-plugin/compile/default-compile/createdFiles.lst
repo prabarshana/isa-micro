@@ -1,0 +1,4 @@
+com\isanka\notifications\controller\NotificationController.class
+com\isanka\notifications\service\NotificationService.class
+com\isanka\notifications\NotificationApp.class
+com\isanka\notifications\consumer\RabbitMqConsumer.class

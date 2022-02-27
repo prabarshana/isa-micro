@@ -2,7 +2,9 @@ server:
   port: 8080
 spring:
   application:
-    name: Customer Application
+    name: customer
+  zipkin:
+    base-url: http://localhost:9411    
   jpa:
     database: POSTGRESQL
     show-sql: true
@@ -17,3 +19,17 @@ spring:
     url: jdbc:postgresql://localhost:5432/customer
     username: postgres
     password: postgres
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka    
+    enabled: true
+rabbitmq:
+  exchanges:
+    internal: internal.exchange
+  queue:
+    notification: notification.queue
+  routing-keys:
+    internal-notification: internal.notification.routing-key    

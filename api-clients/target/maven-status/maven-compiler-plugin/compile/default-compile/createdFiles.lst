@@ -1,0 +1,7 @@
+com\isanka\client\fraudclient\FraudCheckStatus.class
+com\isanka\client\notification\NotificationBody$NotificationBodyBuilder.class
+com\isanka\client\notification\NotificationBody.class
+com\isanka\client\fraudclient\FraudClient.class
+com\isanka\client\notification\NotificationClient.class
+com\isanka\client\FeignApplication.class
+com\isanka\client\fraudclient\FraudCheckStatus$FraudCheckStatusBuilder.class
