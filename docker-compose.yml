@@ -1,14 +1,153 @@
 version : "3.9"
 services : 
  zipkin :
+  #profiles:
+    #- donotstart
   image : openzipkin/zipkin
   container_name : zipkin
   ports : 
    - "9411:9411"
+  networks:
+   - micro-int 
 
  rabbitmq:
+  #profiles:
+    #- donotstart
   image: rabbitmq:3.9.11-management-alpine
   container_name: rabbitmq
   ports:
     - "5672:5672"
     - "15672:15672"
+  networks:
+    - micro-int  
+
+
+ eureka:
+   #profiles:
+   #- donotstart
+   container_name: eureka-server
+   build:
+     context: eureka-server/
+     dockerfile: Dockerfile
+   image: prabarshana/eureka-server
+   environment:
+    - JAR_FILE=target/eureka-server-1.0-SNAPSHOT.jar
+    - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE}
+   ports:
+    - 8761:8761
+   networks:
+    - micro-int
+
+ customer:
+   container_name: customer-app
+   build:
+     context: customer/
+     dockerfile: Dockerfile
+   image: prabarshana/customer-app
+   environment:
+    - JAR_FILE=target/customer-1.0-SNAPSHOT.jar
+    - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE}
+   ports:
+    - 8080:8080
+   networks:
+    - micro-int
+   depends_on:
+    - postgres
+    - eureka
+    - api-gw
+ 
+ fraud:
+   container_name: fraud-app
+   build:
+     context: fraud/
+     dockerfile: Dockerfile
+   image: prabarshana/fraud
+   environment:
+    - JAR_FILE=target/fraud-1.0-SNAPSHOT.jar
+    - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE}
+   ports:
+    - 8081:8081
+   networks:
+    - micro-int
+   depends_on:
+    - rabbitmq
+    - eureka
+    - zipkin
+       
+ api-gw:
+   container_name: api-gw
+   build:
+     context: api-gw/
+     dockerfile: Dockerfile
+   image: prabarshana/api-gw
+   environment:
+    - JAR_FILE=target/api-gw-1.0-SNAPSHOT.jar
+    - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE}
+   ports:
+    - 8083:8083
+   networks:
+    - micro-int
+   depends_on:
+    - rabbitmq
+    - eureka
+    - zipkin 
+       
+ notifications:
+   container_name: notifications
+   build:
+     context: notifications/
+     dockerfile: Dockerfile
+   image: prabarshana/notifications
+   environment:
+    - JAR_FILE=target/notifications-1.0-SNAPSHOT.jar
+    - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE}
+   ports:
+    - 8082:8082
+   networks:
+    - micro-int
+   depends_on:
+    - rabbitmq
+    - eureka
+    - zipkin      
+ postgres:
+    #profiles:
+     #- donotstart
+    container_name: postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - micro-int
+    restart: unless-stopped
+
+ pgadmin:
+    #profiles:
+      #- donotstart
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - micro-int
+    restart: unless-stopped
+    depends_on:
+     - postgres
+networks:
+  micro-int:
+    driver: bridge
+
+volumes:
+  postgres:
+  pgadmin:

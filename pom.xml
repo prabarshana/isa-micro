@@ -26,6 +26,8 @@
 		<maven.compiler.target>17</maven.compiler.target>
 		<spring.boot.version>2.6.2</spring.boot.version>
 		<spring.cloud.version>2021.0.1</spring.cloud.version>
+		<jib.version>3.2.0</jib.version>
+		<image>prabarshana/${project.artifactId}:${project.version}</image>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -85,6 +87,29 @@
 						<execution>
 							<goals>
 								<goal>repackage</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>com.google.cloud.tools</groupId>
+					<artifactId>jib-maven-plugin</artifactId>
+					<version>${jib.version}</version>
+					<configuration>
+						<from>
+							<image>openjdk:17-alpine</image>
+						</from>
+						<to>
+							<tags>
+								<tag>latest</tag>
+							</tags>
+						</to>
+					</configuration>
+					<executions>
+						<execution>
+							<phase>package</phase>
+							<goals>
+								<goal>build</goal>
 							</goals>
 						</execution>
 					</executions>

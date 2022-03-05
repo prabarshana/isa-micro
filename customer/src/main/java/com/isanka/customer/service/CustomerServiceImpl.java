@@ -8,7 +8,6 @@ import com.isanka.amqp.service.RabbitMqPublisherService;
 import com.isanka.client.fraudclient.FraudCheckStatus;
 import com.isanka.client.fraudclient.FraudClient;
 import com.isanka.client.notification.NotificationBody;
-import com.isanka.client.notification.NotificationClient;
 import com.isanka.customer.model.Customer;
 import com.isanka.customer.model.CustomerRegistrationRequest;
 import com.isanka.customer.repository.CustomerRepo;

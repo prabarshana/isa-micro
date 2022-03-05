@@ -4,7 +4,7 @@ spring:
   application:
     name: apigw
   zipkin:
-    base-url: http://localhost:9411
+    base-url: http://zipkin:9411
   cloud:
     gateway:
       enabled: true
@@ -13,9 +13,17 @@ spring:
         uri: lb://CUSTOMER
         predicates:
         - Path=/api/customers/**
+      globalcors:
+        cors-configurations:
+         '[/**]':
+          allowedOrigins: "http://localhost:3000"
+          allowedHeaders: "*"
+          allowedMethods:
+            - GET
+            - POST
 eureka:
   client:
     fetch-registry: true
     register-with-eureka: true
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://eureka:8761/eureka
