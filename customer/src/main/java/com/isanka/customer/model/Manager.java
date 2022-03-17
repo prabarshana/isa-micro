@@ -1,9 +1,12 @@
 package com.isanka.customer.model;
 
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,11 +18,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Customer {
+public class Manager {
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "customer_seq")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "manager_seq")
 	private Integer id;
 	private String firstName;
 	private String lastName;
 	private String email;
+	
+	@OneToMany(mappedBy = "department")
+	private List<ManagerDepartment> mcust;
 }

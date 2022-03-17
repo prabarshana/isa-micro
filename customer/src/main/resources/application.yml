@@ -35,3 +35,8 @@ rabbitmq:
     notification: notification.queue
   routing-keys:
     internal-notification: internal.notification.routing-key    
+management:
+  endpoints: 
+   web: 
+    exposure: 
+     include: "*"

@@ -1,8 +1,8 @@
 version : "3.9"
 services : 
  zipkin :
-  #profiles:
-    #- donotstart
+  profiles:
+    - donotstart
   image : openzipkin/zipkin
   container_name : zipkin
   ports : 
@@ -11,8 +11,8 @@ services :
    - micro-int 
 
  rabbitmq:
-  #profiles:
-    #- donotstart
+  profiles:
+    - donotstart
   image: rabbitmq:3.9.11-management-alpine
   container_name: rabbitmq
   ports:
@@ -21,10 +21,31 @@ services :
   networks:
     - micro-int  
 
+ zookeeper:
+    image: docker.io/bitnami/zookeeper:3.7
+    ports:
+      - "2181:2181"
+    volumes:
+      - "zookeeper_data:/bitnami"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+ kafka:
+    image: docker.io/bitnami/kafka:3
+    ports:
+      - "9092:9092"
+    volumes:
+      - "kafka_data:/bitnami"
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+    depends_on:
+      - zookeeper
 
  eureka:
-   #profiles:
-   #- donotstart
+   profiles:
+   - donotstart
    container_name: eureka-server
    build:
      context: eureka-server/
@@ -39,6 +60,8 @@ services :
     - micro-int
 
  customer:
+   profiles:
+   - donotstart
    container_name: customer-app
    build:
      context: customer/
@@ -57,6 +80,8 @@ services :
     - api-gw
  
  fraud:
+   profiles:
+   - donotstart
    container_name: fraud-app
    build:
      context: fraud/
@@ -75,6 +100,8 @@ services :
     - zipkin
        
  api-gw:
+   profiles:
+   - donotstart 
    container_name: api-gw
    build:
      context: api-gw/
@@ -93,6 +120,8 @@ services :
     - zipkin 
        
  notifications:
+   profiles:
+   - donotstart 
    container_name: notifications
    build:
      context: notifications/
@@ -144,6 +173,14 @@ services :
     restart: unless-stopped
     depends_on:
      - postgres
+     
+ grafana:
+   container_name: grafana
+   image : grafana/grafana    
+   ports : 
+    - "3000:3000"
+     
+     
 networks:
   micro-int:
     driver: bridge
@@ -151,3 +188,8 @@ networks:
 volumes:
   postgres:
   pgadmin:
+  zookeeper_data:
+    driver: local
+  kafka_data:
+    driver: local  
+  

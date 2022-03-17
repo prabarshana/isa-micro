@@ -4,10 +4,10 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient("FRAUD")
+@FeignClient(name = "FRAUD", path = "/api/v1/check")
 public interface FraudClient {
 	
-	@GetMapping(path = "/api/check/{customerId}")
+	@GetMapping(path = "{customerId}")
 	public FraudCheckStatus check(@PathVariable(value = "customerId") Integer customerId);
 	
 }

@@ -1,5 +1,7 @@
 package com.isanka.customer.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +25,6 @@ public class CustomerServiceImpl implements CustomerService{
 	
 	@Autowired
 	private FraudClient fraudService;
-	
-//	@Autowired
-//	private NotificationClient notificationService;
 	
 	@Autowired
 	private RabbitMqPublisherService emailQueue;
@@ -54,18 +53,40 @@ public class CustomerServiceImpl implements CustomerService{
 		
 		emailQueue.publish(body, config.getExchange(), config.getKey());
 		
-		//notificationService.sendEmail(body);
-		
-		//ResponseEntity<String> result = template.getForEntity("http://FRAUD/fraud/api/check/{customerId}", String.class, customer.getId());
 		log.info(status.toString());
 		
 		return customer;
-		
-		
-		
-		
-		
-
 	}
+
+	@Override
+	public Customer getCustomer(Integer CustomerId) {
+		return dao.findById(CustomerId).get();
+	}
+
+	@Override
+	public List<Customer> getAllCustomers() {
+		return dao.findAll();
+	}
+
+	@Override
+	public Customer updateCustomer(Integer CustomerId, CustomerRegistrationRequest request) {
+
+		Customer customer = Customer.builder()
+				.id(CustomerId)
+				.firstName(request.firstName())
+				.lastName(request.lastName())
+				.email(request.email()).build();
+		
+		return dao.save(customer);
+		
+	}
+
+	@Override
+	public void deleteCustomer(Integer CustomerId) {
+		dao.deleteById(CustomerId);
+	}
+	
+
+	
 
 }
